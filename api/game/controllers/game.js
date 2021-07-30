@@ -9,7 +9,12 @@ const { default: createStrapi } = require("strapi");
 
 module.exports = {
   populate: async (ctx) => {
-    strapi.services.game.populate();
+    const options = {
+      page: "1",
+      sort: "popularity",
+      ...ctx.query,
+    };
+    strapi.services.game.populate(options);
     ctx.send({ Ok: true });
   },
 };
