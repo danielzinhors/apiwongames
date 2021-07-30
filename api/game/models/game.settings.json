@@ -42,12 +42,13 @@
     "reting": {
       "type": "enumeration",
       "enum": [
-        "FREE",
-        "pegi3",
-        "pegi7",
-        "pegi12",
-        "pegi16",
-        "pegi18"
+        "BR0",
+        "BR3",
+        "BR6",
+        "BR10",
+        "BR13",
+        "BR17",
+        "BR18"
       ]
     },
     "cover": {
