@@ -39,7 +39,7 @@
     "release_date": {
       "type": "date"
     },
-    "reting": {
+    "rating": {
       "type": "enumeration",
       "enum": [
         "BR0",
