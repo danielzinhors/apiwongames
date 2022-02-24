@@ -1,6 +1,7 @@
 "use strict";
 const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 const { sanitizeEntity } = require("strapi-utils");
+const orderTemplate = require("../../../config/email-templates/order");
 /**
  * Read the documentation (https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#core-controllers)
  * to customize this controller
@@ -70,7 +71,7 @@ module.exports = {
         paymentInfo = await stripe.paymentMethods.retrieve(paymentMethod);
       } catch (error) {
         ctx.response.status = 402;
-        console.log(error.message);
+
         return { error: error.message };
       }
     }
@@ -84,7 +85,43 @@ module.exports = {
     };
 
     const entity = await strapi.services.order.create(entry);
+    // envia email sem plugin email designer
+    // await strapi.plugins.email.services.email.sendTemplatedEmail(
+    //   {
+    //     to: userInfo.email,
+    //     from: "no-reply@wongames.com",
+    //   },
+    //   orderTemplate,
+    //   {
+    //     user: userInfo,
+    //     payment: {
+    //       total: `$ ${total_in_cents / 100}`,
+    //       card_brand: entry.card_brand,
+    //       card_last4: entry.card_last4,
+    //     },
+    //     games,
+    //   }
+    // );
+    //envia email com olugin email designer
+    await strapi.plugins["email-designer"].services.email.sendTemplatedEmail(
+      {
+        to: userInfo.email,
+        from: "no-reply@wongames.com",
+      },
+      {
+        templateId: 1,
+      },
+      {
+        user: userInfo,
+        payment: {
+          total: `$ ${total_in_cents / 100}`,
+          card_brand: entry.card_brand,
+          card_last4: entry.card_last4,
+        },
+        games,
+      }
+    );
 
-    return sanitizeEntity(entity, { model: strapi.model.order });
+    return sanitizeEntity(entity, { model: strapi.models.order });
   },
 };
