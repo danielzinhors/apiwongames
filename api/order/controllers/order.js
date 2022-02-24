@@ -62,14 +62,27 @@ module.exports = {
     //pegar o total
     const total_in_cents = await strapi.config.functions.cart.total(games);
     // salvar no banco
+
+    let paymentInfo;
+    if (total_in_cents !== 0) {
+      //
+      try {
+        paymentInfo = await stripe.paymentMethods.retrieve(paymentMethod);
+      } catch (error) {
+        ctx.response.status = 402;
+        console.log(error.message);
+        return { error: error.message };
+      }
+    }
     const entry = {
       total_in_cents,
       payment_intent_id: paymentIntentId,
-      card_brand: null,
-      card_last4: null,
+      card_brand: paymentInfo?.card?.brand,
+      card_last4: paymentInfo?.card?.last4,
       user: userInfo,
       games,
     };
+
     const entity = await strapi.services.order.create(entry);
 
     return sanitizeEntity(entity, { model: strapi.model.order });
